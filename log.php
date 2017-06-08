@@ -1,78 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-	
-<script src="https://www.gstatic.com/firebasejs/4.1.1/firebase.js"></script>
-<script>
-  // Initialize Firebase
-  var config = {
-    apiKey: "AIzaSyDbik6ZsaF34Rpf1WqfKBfPgTozdXQ4r_s",
-    authDomain: "thinkmons-ae5ed.firebaseapp.com",
-    databaseURL: "https://thinkmons-ae5ed.firebaseio.com",
-    projectId: "thinkmons-ae5ed",
-    storageBucket: "thinkmons-ae5ed.appspot.com",
-    messagingSenderId: "329454814635"
-  };
-  firebase.initializeApp(config);
-</script>
-
-<head>
-	
-
-   <script>
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '673690222841242',
-      cookie     : true,
-      xfbml      : true,
-      version    : 'v2.8'
-    });
-   
-  };
-
-  (function(d, s, id){
-     var js, fjs = d.getElementsByTagName(s)[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement(s); js.id = id;
-     js.src = "//connect.facebook.net/en_US/sdk.js";
-     fjs.parentNode.insertBefore(js, fjs);
-   }(document, 'script', 'facebook-jssdk'));
-
-     
-function checkLoginState() {
-  FB.getLoginStatus(function(response) {
-    statusChangeCallback(response);
-  });  
-}
-
-   function statusChangeCallback(response)
-    {
-        console.log('Welcome!  Fetching your information.... ');
-    FB.api('/me?fields=first_name,last_name,email', function(response) {
-      console.log('Successful login for: ' + response.name);
-      document.getElementById('name').innerHTML =
-        response.first_name + ' ' + response.last_name ;
-      document.getElementById('email').innerHTML =response.email;
-      document.getElementById('loginBtn').style.display ="none";
-      document.getElementById('name').style.display ="block";  
-      document.getElementById('email').style.display ="block";
-       document.getElementById('logoutBtn').style.display ="block";  
-    });
-    }
-    function logout(response)
-    { 
-        FB.logout(function(response) {
-             document.getElementById('loginBtn').style.display ="block";
-              document.getElementById('name').style.display ="none";
-       document.getElementById('email').style.display ="none";
-       document.getElementById('logoutBtn').style.display ="none"; 
-
-});
-    }
-    </script>
-
       <meta charset=utf-8 />
+
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email/Password Authentication Example</title>
+  <title>Thinkmons-login/signup</title>
 
   <!-- Material Design Theming -->
   <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
@@ -289,6 +221,95 @@ function checkLoginState() {
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57-precomposed.png">
+
+
+    <script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyDbik6ZsaF34Rpf1WqfKBfPgTozdXQ4r_s",
+    authDomain: "thinkmons-ae5ed.firebaseapp.com",
+    databaseURL: "https://thinkmons-ae5ed.firebaseio.com",
+    projectId: "thinkmons-ae5ed",
+    storageBucket: "thinkmons-ae5ed.appspot.com",
+    messagingSenderId: "329454814635"
+  };
+  firebase.initializeApp(config);
+
+      initApp = function() {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+            // User is signed in.
+            var displayName = user.displayName;
+            var email = user.email;
+            var emailVerified = user.emailVerified;
+            var photoURL = user.photoURL;
+            var uid = user.uid;
+            var phoneNumber = user.phoneNumber;
+            var providerData = user.providerData;
+            user.getToken().then(function(accessToken) {
+              document.getElementById('sign-in-status').textContent = 'Signed in';
+              document.getElementById('sign-in').textContent = 'Sign out';
+       //       document.getElementById('account-details').textContent = JSON.stringify({
+        //        displayName: displayName,
+        //        email: email,
+       //         emailVerified: emailVerified,
+       //         phoneNumber: phoneNumber,
+       //         photoURL: photoURL,
+       //         uid: uid,
+       //         accessToken: accessToken,
+       //         providerData: providerData
+       //       }, null, '  ');
+            });
+          } else {
+            // User is signed out.
+            document.getElementById('sign-in-status').textContent = 'Signed out';
+            document.getElementById('sign-in').textContent = 'Sign in';
+            document.getElementById('account-details').textContent = 'null';
+          }
+        }, function(error) {
+          console.log(error);
+        });
+      };
+
+      window.addEventListener('load', function() {
+        initApp()
+      });
+</script>
+
+    <script src="https://cdn.firebase.com/libs/firebaseui/2.0.0/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.0.0/firebaseui.css" />
+
+    <script type="text/javascript">
+      // FirebaseUI config.
+      var uiConfig = {
+        signInSuccessUrl: 'log.php',
+        signInOptions: [
+           {
+        provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        scopes: ['https://www.googleapis.com/auth/plus.login',
+                'email'
+                ]
+      },
+      {
+        provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+        scopes :[
+          'public_profile',
+          'email',
+          'user_likes',
+          'user_friends'
+        ]
+      }         
+        ],
+        // Terms of service url.
+        tosUrl: 'www.google.com'
+      };
+
+      // Initialize the FirebaseUI Widget using Firebase.
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+      // The start method will wait until the DOM is loaded.
+      ui.start('#firebaseui-auth-container', uiConfig);
+    </script>
 </head><!--/head-->
 
 
@@ -310,64 +331,11 @@ function checkLoginState() {
 							
 						</div>
 					</div>
-					<div class="col-sm-8">
-						<div class="shop-menu pull-right">
-							<ul class="nav navbar-nav">
-								<li><a href=""><i class="fa fa-user"></i> Account</a></li>
-								<li><a href=""><i class="fa fa-star"></i> Wishlist</a></li>
-								<li><a href="checkout.html"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-								<li><a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-								<li><a href="login.html" class="active"><i class="fa fa-lock"></i> Login</a></li>
-							</ul>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div><!--/header-middle-->
 	
-		<div class="header-bottom"><!--header-bottom-->
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-9">
-						<div class="navbar-header">
-							<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-								<span class="sr-only">Toggle navigation</span>
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-							</button>
-						</div>
-						<div class="mainmenu pull-left">
-							<ul class="nav navbar-nav collapse navbar-collapse">
-								<li><a href="index.html">Home</a></li>
-								<li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
-                                    <ul role="menu" class="sub-menu">
-                                        <li><a href="shop.html">Products</a></li>
-										<li><a href="product-details.html">Product Details</a></li> 
-										<li><a href="checkout.html">Checkout</a></li> 
-										<li><a href="cart.html">Cart</a></li> 
-										<li><a href="login.html" class="active">Login</a></li> 
-                                    </ul>
-                                </li> 
-								<li class="dropdown"><a href="#">Blog<i class="fa fa-angle-down"></i></a>
-                                    <ul role="menu" class="sub-menu">
-                                        <li><a href="blog.html">Blog List</a></li>
-										<li><a href="blog-single.html">Blog Single</a></li>
-                                    </ul>
-                                </li> 
-								<li><a href="404.html">404</a></li>
-								<li><a href="contact-us.html">Contact</a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-sm-3">
-						<div class="search_box pull-right">
-							<input type="text" placeholder="Search"/>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div><!--/header-bottom-->
+		
 	</header><!--/header-->
 	
 	<section id="form"><!--form-->
@@ -385,8 +353,6 @@ function checkLoginState() {
           <button class="btn btn-primary" id="quickstart-sign-up" name="signup">Sign Up</button>
           <br>
           &nbsp;&nbsp;&nbsp;
-          <button class="btn btn-primary" disabled id="quickstart-verify-email" name="verify-email">Send Email Verification</button>
-          &nbsp;&nbsp;&nbsp;
           <button class="btn btn-primary" id="quickstart-password-reset" name="verify-email">Send Password Reset Email</button>
 
           <div class="quickstart-user-details-container">
@@ -399,98 +365,18 @@ function checkLoginState() {
 					<h2 class="or">OR</h2>
 				</div>
 				<div class="col-sm-4">
-<div id="loginBtn"><fb:login-button 
-  scope="public_profile,email"
-  onlogin="checkLoginState();">
-</fb:login-button></div>
-  <div id="name"></div>
-  <div id="email"></div>
-  <br><div id="logoutBtn" onclick="logout" style="display:none;">LOGOUT</div>				
+           <div id="firebaseui-auth-container"></div>
+     <div id="sign-in-status"></div>
+    <div id="sign-in"></div>
+    <div id="account-details"></div>
                 	</div>
 			</div>
 		</div>
+
+
 	</section><!--/form-->
 	
 	
-	<footer id="footer"><!--Footer-->
-		
-		
-		<div class="footer-widget">
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-2">
-						<div class="single-widget">
-							<h2>Service</h2>
-							<ul class="nav nav-pills nav-stacked">
-								<li><a href="">Online Help</a></li>
-								<li><a href="">Contact Us</a></li>
-								<li><a href="">Order Status</a></li>
-								<li><a href="">Change Location</a></li>
-								<li><a href="">FAQ’s</a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-sm-2">
-						<div class="single-widget">
-							<h2>Quock Shop</h2>
-							<ul class="nav nav-pills nav-stacked">
-								<li><a href="">T-Shirt</a></li>
-								<li><a href="">Mens</a></li>
-								<li><a href="">Womens</a></li>
-								<li><a href="">Gift Cards</a></li>
-								<li><a href="">Shoes</a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-sm-2">
-						<div class="single-widget">
-							<h2>Policies</h2>
-							<ul class="nav nav-pills nav-stacked">
-								<li><a href="">Terms of Use</a></li>
-								<li><a href="">Privecy Policy</a></li>
-								<li><a href="">Refund Policy</a></li>
-								<li><a href="">Billing System</a></li>
-								<li><a href="">Ticket System</a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-sm-2">
-						<div class="single-widget">
-							<h2>About Shopper</h2>
-							<ul class="nav nav-pills nav-stacked">
-								<li><a href="">Company Information</a></li>
-								<li><a href="">Careers</a></li>
-								<li><a href="">Store Location</a></li>
-								<li><a href="">Affillate Program</a></li>
-								<li><a href="">Copyright</a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-sm-3 col-sm-offset-1">
-						<div class="single-widget">
-							<h2>About Shopper</h2>
-							<form action="#" class="searchform">
-								<input type="text" placeholder="Your email address" />
-								<button type="submit" class="btn btn-default"><i class="fa fa-arrow-circle-o-right"></i></button>
-								<p>Get the most recent updates from <br />our site and be updated your self...</p>
-							</form>
-						</div>
-					</div>
-					
-				</div>
-			</div>
-		</div>
-		
-		<div class="footer-bottom">
-			<div class="container">
-				<div class="row">
-					<p class="pull-left">Copyright © 2013 E-SHOPPER Inc. All rights reserved.</p>
-					<p class="pull-right">Designed by <span><a target="_blank" href="http://www.themeum.com">Themeum</a></span></p>
-				</div>
-			</div>
-		</div>
-		
-	</footer><!--/Footer-->
 	
 
   
